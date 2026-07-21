@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import platform
 import subprocess
 import sys
 import tempfile
@@ -38,6 +39,9 @@ class IncidentSandbox:
 
     def start(self, *, hung: bool = False) -> dict[str, Any]:
         self.stop()
+        # Do not let a previous worker's heartbeat satisfy the new worker's
+        # readiness check during the small process-start race.
+        self.state_file.unlink(missing_ok=True)
         log = self.log_file.open("a", encoding="utf-8")
         command = [sys.executable, "-m", "verified_sandbox.worker", "--state", str(self.state_file)]
         if hung:
@@ -89,6 +93,8 @@ class IncidentSandbox:
             "heartbeat_age_seconds": round(max(0.0, time.time() - heartbeat), 3) if heartbeat else None,
             "healthy": self._alive(pid) and state.get("status") == "healthy" and time.time() - heartbeat < 3,
             "target": "synthetic.local.worker",
+            "os": {"system": platform.system(), "release": platform.release(), "python": platform.python_version()},
+            "logs": self.logs(),
         })
         return state
 

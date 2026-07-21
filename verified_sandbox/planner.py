@@ -8,16 +8,20 @@ import urllib.error
 import urllib.request
 from typing import Any
 
-
-ALLOWED_CAPABILITIES = {"restart_sandbox_worker", "terminate_sandbox_worker"}
+from .registry import load_capabilities
 
 
 def _fallback(alert: dict[str, Any], inspection: dict[str, Any]) -> dict[str, Any]:
-    capability = "restart_sandbox_worker" if inspection.get("alive") else "terminate_sandbox_worker"
+    if inspection.get("healthy"):
+        capability = "observe_only"
+        reasoning = "The target is already healthy; verify it without changing state."
+    else:
+        capability = "restart_sandbox_worker"
+        reasoning = "The synthetic worker is unhealthy; restart it and prove a fresh healthy heartbeat."
     return {
         "capability": capability,
         "target": inspection.get("target", "synthetic.local.worker"),
-        "reasoning": "The synthetic worker is unhealthy; restart it and prove a fresh healthy heartbeat.",
+        "reasoning": reasoning,
         "steps": ["inspect_worker", capability],
         "verification": {"healthy": True, "heartbeat_age_seconds_less_than": 3},
         "risk": "sandbox_only",
@@ -41,7 +45,7 @@ def _extract_json(payload: dict[str, Any]) -> dict[str, Any]:
 
 def _validate(plan: dict[str, Any], inspection: dict[str, Any]) -> dict[str, Any]:
     capability = str(plan.get("capability") or "").strip()
-    if capability not in ALLOWED_CAPABILITIES:
+    if capability not in load_capabilities():
         raise ValueError(f"capability is not allowed: {capability!r}")
     if str(plan.get("target") or "") != str(inspection.get("target") or "synthetic.local.worker"):
         raise ValueError("plan target did not match the inspected target")
@@ -61,12 +65,12 @@ def generate_plan(alert: dict[str, Any], inspection: dict[str, Any]) -> dict[str
     model = os.getenv("OPENAI_MODEL", "gpt-5.6").strip() or "gpt-5.6"
     system = (
         "You are a constrained incident-remediation planner. Return JSON only with keys "
-        "capability,target,reasoning,steps,verification,risk. You may select only "
-        "restart_sandbox_worker or terminate_sandbox_worker. The target is synthetic and "
+        "capability,target,reasoning,steps,verification,risk. You may select only the "
+        "capabilities listed in the supplied manifest. The target is synthetic and "
         "local; never invent commands, credentials, hosts, or capabilities. Verification "
         "must require a healthy worker heartbeat younger than three seconds."
     )
-    user = json.dumps({"alert": alert, "inspection": inspection}, sort_keys=True)
+    user = json.dumps({"alert": alert, "inspection": inspection, "capabilities": load_capabilities()}, sort_keys=True)
     request_body = {
         "model": model,
         "temperature": 0,

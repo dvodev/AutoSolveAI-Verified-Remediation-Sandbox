@@ -12,12 +12,13 @@ Requires Python 3.10+.
 python -m verified_sandbox
 ```
 
-Open <http://127.0.0.1:8787> and click the four buttons in order:
+Open <http://127.0.0.1:8787> and choose a scenario:
 
-1. Simulate a synthetic Datadog-style alert. This starts a deliberately unhealthy disposable worker.
-2. Generate a plan. With `OPENAI_API_KEY` set, the configured model is used; without it, the safe offline planner keeps the demo testable.
-3. Approve the plan.
-4. Execute and verify. The worker is restarted and the fresh heartbeat is shown as `VERIFIED`.
+1. **Stale heartbeat** starts a deliberately hung disposable worker.
+2. **Missing process** removes the disposable worker.
+3. **Healthy signal** demonstrates an observe-only no-op.
+
+Then simulate the alert, generate a plan, approve it, and execute/verify it. Shadow mode performs planning and evidence collection without changing the target. The UI also exposes audit replay and rollback.
 
 The model is constrained to the sandbox's declared capability contract. A plan naming any other capability or target is rejected before execution.
 
@@ -37,10 +38,13 @@ $env:SANDBOX_PORT = "8787"
 
 - alert ingestion and target inspection
 - structured AI planning with schema and capability validation
+- data-driven capability registry and scenario catalog
 - explicit human approval before execution
+- shadow mode for safe previews
 - a real process restart inside a disposable temp directory
 - independent post-action verification
-- append-only JSONL audit events with a terminal `VERIFIED` or `FAILED` result
+- append-only hash-chained JSONL audit events with a terminal `VERIFIED` or `FAILED` result
+- rollback and replay evidence
 - safe offline behavior when no model credential is configured
 
 ## Submission boundaries

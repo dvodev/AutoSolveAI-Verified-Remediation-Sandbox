@@ -1,0 +1,26 @@
+[
+  {
+    "name": "observe_only",
+    "label": "Observe only",
+    "description": "Collect evidence and prove an already healthy target without changing it.",
+    "risk": "none",
+    "mutates": false,
+    "verification": "healthy heartbeat younger than three seconds"
+  },
+  {
+    "name": "restart_sandbox_worker",
+    "label": "Restart disposable worker",
+    "description": "Restart only the synthetic worker created by this demo.",
+    "risk": "sandbox_only",
+    "mutates": true,
+    "verification": "new healthy heartbeat younger than three seconds"
+  },
+  {
+    "name": "terminate_sandbox_worker",
+    "label": "Terminate disposable worker",
+    "description": "Stop only the synthetic worker; useful for a deliberately hung process scenario.",
+    "risk": "sandbox_only",
+    "mutates": true,
+    "verification": "worker is no longer alive"
+  }
+]

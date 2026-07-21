@@ -6,11 +6,11 @@ Developer Tools — verified incident remediation.
 
 ## One-sentence pitch
 
-AutoSolve AI turns a monitoring alert into a reviewed, executable remediation and refuses to call it solved until the target independently proves recovery.
+AutoSolve AI turns a monitoring alert into a reviewed, executable remediation and refuses to call it solved until the target independently proves recovery—or safely demonstrates that no change is needed.
 
 ## The judge-visible workflow
 
-Synthetic alert → inspect worker → GPT structured plan → human approval → restart disposable worker → fresh heartbeat verification → audit trail.
+Synthetic alert → inspect worker/OS/logs → GPT structured plan → capability/policy gate → approval or shadow mode → restart/observe/terminate disposable worker → independent verification → hash-chained audit replay and rollback.
 
 ## Scope and ownership boundary
 

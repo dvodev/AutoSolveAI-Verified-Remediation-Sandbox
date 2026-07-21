@@ -40,6 +40,44 @@ class SandboxWorkflowTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             _validate({"capability": "restart_a_real_server", "target": "synthetic.local.worker"}, {"target": "synthetic.local.worker"})
 
+    def test_shadow_mode_never_changes_the_target(self):
+        with tempfile.TemporaryDirectory() as directory:
+            engine = RemediationEngine(directory)
+            try:
+                run = engine.create_alert({"scenario": "stale_heartbeat", "mode": "shadow"})
+                run = engine.plan(run["run_id"])
+                before = run["inspection"]["pid"]
+                run = engine.execute(run["run_id"])
+                self.assertEqual(run["status"], "shadowed")
+                self.assertEqual(run["verification"]["pid"], before)
+                self.assertEqual(run["result"]["status"], "SHADOW_ONLY")
+            finally:
+                engine.close()
+
+    def test_healthy_signal_selects_observe_only(self):
+        with tempfile.TemporaryDirectory() as directory:
+            engine = RemediationEngine(directory)
+            try:
+                run = engine.create_alert({"scenario": "healthy_signal"})
+                run = engine.plan(run["run_id"])
+                self.assertEqual(run["plan"]["capability"], "observe_only")
+                run = engine.approve(run["run_id"])
+                run = engine.execute(run["run_id"])
+                self.assertEqual(run["status"], "verified")
+            finally:
+                engine.close()
+
+    def test_audit_replay_has_hash_chain(self):
+        with tempfile.TemporaryDirectory() as directory:
+            engine = RemediationEngine(directory)
+            try:
+                run = engine.create_alert()
+                replay = engine.replay(run["run_id"])
+                self.assertTrue(replay[0]["hash"])
+                self.assertEqual(replay[0]["previous_hash"], "0" * 64)
+            finally:
+                engine.close()
+
 
 if __name__ == "__main__":
     unittest.main()
