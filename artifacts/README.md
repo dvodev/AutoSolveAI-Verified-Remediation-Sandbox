@@ -1,6 +1,6 @@
 # Demo recording
 
-`autosolve_verified_remediation_demo.webm` is a browser recording of the complete synthetic workflow:
+`autosolve_verified_remediation_demo.webm` is a 1440×900 browser recording of the complete synthetic workflow (approximately 75 seconds):
 
 1. Free-form alert: “Snipping Tool won't close”.
 2. Dynamic router selects the registered termination capability.
