@@ -99,6 +99,68 @@ class PrometheusAdapter(MonitoringAdapter):
         return AdapterResult(self.name, "health", True, "ready", {"provider": "synthetic-prometheus"})
 
 
+class ServiceNowSimulatorAdapter:
+    """ServiceNow-shaped ticket lifecycle without network or credentials."""
+
+    name = "servicenow-simulator"
+
+    def __init__(self) -> None:
+        self.records: dict[str, dict[str, Any]] = {}
+
+    def health(self) -> AdapterResult:
+        return AdapterResult(self.name, "health", True, "ready", {"provider": "synthetic-servicenow", "mode": "simulator"})
+
+    def create(self, alert: Alert) -> AdapterResult:
+        number = f"INC{abs(hash(alert.alert_id)) % 10_000_000:07d}"
+        record = {"number": number, "state": "new", "short_description": alert.title, "description": alert.message, "impact": alert.severity, "service": alert.service, "work_notes": []}
+        self.records[number] = record
+        return AdapterResult(self.name, "create_incident", True, "created", {"ticket_id": number, "record": record})
+
+    def update(self, ticket_id: str, status: str, details: Mapping[str, Any]) -> AdapterResult:
+        record = self.records.get(str(ticket_id))
+        if not record:
+            return AdapterResult(self.name, "update_incident", False, "not_found", error=str(ticket_id))
+        note = {"timestamp": time.time(), "status": str(status), "details": dict(details)}
+        record["state"] = str(status); record["work_notes"].append(note)
+        return AdapterResult(self.name, "update_incident", True, "updated", {"ticket_id": ticket_id, "record": record, "note": note})
+
+
+class AwsEc2SimulatorAdapter:
+    """AWS/EC2-shaped inventory and action ledger; never calls AWS."""
+
+    name = "aws-ec2-simulator"
+
+    def __init__(self) -> None:
+        self.instances = {
+            "i-sandbox-checkout": {"instance_id": "i-sandbox-checkout", "state": "running", "status_checks": "impaired", "region": "us-east-1", "service": "checkout-worker", "environment": "sandbox"},
+            "i-sandbox-api": {"instance_id": "i-sandbox-api", "state": "running", "status_checks": "ok", "region": "us-east-1", "service": "api", "environment": "sandbox"},
+        }
+        self.actions: list[dict[str, Any]] = []
+
+    def health(self) -> AdapterResult:
+        return AdapterResult(self.name, "health", True, "ready", {"provider": "aws", "mode": "simulator", "instances": len(self.instances)})
+
+    def inventory(self, *, service: str | None = None) -> AdapterResult:
+        values = [dict(item) for item in self.instances.values() if not service or item["service"] == service]
+        return AdapterResult(self.name, "describe_instances", True, "complete", {"count": len(values), "instances": values})
+
+    def restart_instance(self, instance_id: str) -> AdapterResult:
+        instance = self.instances.get(str(instance_id))
+        if not instance:
+            return AdapterResult(self.name, "restart_instance", False, "not_found", error=str(instance_id))
+        action = {"action": "restart_instance", "instance_id": instance_id, "timestamp": time.time(), "simulated": True}
+        instance["state"] = "running"; instance["status_checks"] = "ok"; self.actions.append(action)
+        return AdapterResult(self.name, "restart_instance", True, "simulated", {"instance": dict(instance), "action": action})
+
+
+class ConnectorHealth:
+    """Stable health payload for UI, CLI, and judge scripts."""
+
+    @staticmethod
+    def summarize(registry: "AdapterRegistry") -> dict[str, Any]:
+        values = registry.health(); return {"healthy": all(item.get("ok", item.get("status") in {"ready", "registered"}) for item in values.values()), "count": len(values), "adapters": values}
+
+
 class TargetAdapter(abc.ABC):
     name = "target"
 

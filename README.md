@@ -55,6 +55,8 @@ $env:SANDBOX_PORT = "8787"
 - fault-injection scenario matrix, replay bundles, markdown/HTML reports, and Prometheus-style metrics
 - safe offline behavior when no model credential is configured
 - local release-boundary checks for high-confidence credentials, sensitive filenames, required submission files, and a clean worktree
+- provider-shaped Datadog, Prometheus, ServiceNow, and AWS/EC2 simulators with connector health
+- incident deduplication/correlation, explainable capability routing, policy risk controls, idempotent retries, circuit breakers, plan envelopes, learning summaries, independent check evaluation, and dependency-ordered runbook synthesis
 
 ## Submission boundaries
 

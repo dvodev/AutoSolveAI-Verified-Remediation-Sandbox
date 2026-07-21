@@ -11,10 +11,15 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, Iterable, Mapping
 
-from .adapters import AdapterRegistry, DatadogAdapter, MemoryTicketingAdapter, PrometheusAdapter, SandboxWorkerAdapter
+from .adapters import AdapterRegistry, AwsEc2SimulatorAdapter, ConnectorHealth, DatadogAdapter, MemoryTicketingAdapter, PrometheusAdapter, SandboxWorkerAdapter, ServiceNowSimulatorAdapter
+from .capability_router import CapabilityRouter
 from .contracts import ContractError, fingerprint
 from .engine import RemediationEngine
+from .execution_runtime import ExecutionRuntime
+from .incident_intake import IncidentIntake
 from .models import RunStatus, TargetRef
+from .policy_engine import PolicyEngine
+from .runbook import RunbookSynthesizer
 
 
 @dataclass(frozen=True)
@@ -86,14 +91,22 @@ class RemediationOrchestrator:
         self.engine = engine or RemediationEngine()
         self.bus = bus or EventBus()
         self.definition = WorkflowDefinition()
+        self.intake = IncidentIntake()
+        self.router = CapabilityRouter()
+        self.policy_engine = PolicyEngine()
+        self.runtime = ExecutionRuntime()
+        self.runbook_synthesizer = RunbookSynthesizer()
         self.adapters = AdapterRegistry([
-            DatadogAdapter(), PrometheusAdapter(), SandboxWorkerAdapter(self.engine.sandbox), MemoryTicketingAdapter(),
+            DatadogAdapter(), PrometheusAdapter(), SandboxWorkerAdapter(self.engine.sandbox), MemoryTicketingAdapter(), ServiceNowSimulatorAdapter(), AwsEc2SimulatorAdapter(),
         ])
 
     def workflow(self) -> dict[str, Any]:
-        return {"steps": self.definition.describe(), "adapters": self.adapters.names(), "adapter_health": self.adapters.health()}
+        return {"steps": self.definition.describe(), "adapters": self.adapters.names(), "adapter_health": ConnectorHealth.summarize(self.adapters), "controls": {"intake_dedupe": self.intake.dedupe_seconds, "policy": self.policy_engine.max_risk, "runtime": self.runtime.health()}}
 
     def ingest(self, payload: Mapping[str, Any], source: str = "synthetic") -> dict[str, Any]:
+        intake = self.intake.ingest(payload, source)
+        if intake.duplicate:
+            raise OrchestrationError(f"duplicate incident: {intake.correlated_incident_id}")
         if source == "datadog":
             alert = self.adapters.get("datadog-simulator").normalize(payload).as_dict()
         elif source == "prometheus":
@@ -101,6 +114,10 @@ class RemediationOrchestrator:
         else:
             alert = dict(payload)
         run = self.engine.create_alert(alert)
+        run["intake"] = intake.as_dict()
+        route_preview = self.router.decide(alert, run.get("inspection", {}), self.engine.capabilities)
+        run["route_preview"] = route_preview.as_dict()
+        run["runbook"] = self.runbook_synthesizer.synthesize(alert, run.get("inspection", {}), run["route_preview"], self.engine.capabilities).as_dict()
         self.bus.publish("alert.received", run["run_id"], source=source, alert=alert)
         return run
 

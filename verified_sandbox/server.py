@@ -59,6 +59,12 @@ class Handler(BaseHTTPRequestHandler):
             self._json(200, self.engine.state())
         elif route == "/api/capabilities":
             self._json(200, self.engine.capabilities)
+        elif route == "/api/workflow":
+            from .orchestrator import RemediationOrchestrator
+            self._json(200, RemediationOrchestrator(self.engine).workflow())
+        elif route == "/api/connectors":
+            from .orchestrator import RemediationOrchestrator
+            self._json(200, RemediationOrchestrator(self.engine).workflow()["adapter_health"])
         elif route == "/api/scenarios":
             from .scenarios import SCENARIOS
             self._json(200, SCENARIOS)

@@ -20,6 +20,9 @@ from .evidence import collect_target_snapshot, compare_verification, evidence_su
 from .storage import JsonlStore
 from .metrics import MetricsRegistry
 from .security import PlanSigner, authorize_payload
+from .learning import LearningLedger, Outcome
+from .plan_envelope import ensure_envelope, validate_envelope
+from .verification_engine import VerificationEngine
 
 
 class RemediationEngine:
@@ -29,6 +32,8 @@ class RemediationEngine:
         self.audit_path = self.data_dir / "audit.jsonl"
         self.events = JsonlStore(self.audit_path)
         self.metrics = MetricsRegistry()
+        self.learning = LearningLedger()
+        self.verification_engine = VerificationEngine.healthy_worker()
         self.signer = PlanSigner()
         self.sandbox = IncidentSandbox(self.data_dir / "sandbox")
         self.lock = threading.RLock()
@@ -82,6 +87,10 @@ class RemediationEngine:
             run = self.runs[run_id]
             run["inspection"] = self.sandbox.inspect()
             run["plan"] = generate_plan(run["alert"], run["inspection"])
+            run["plan_envelope"] = ensure_envelope(run["plan"], inspection=run["inspection"])
+            envelope_errors = validate_envelope(run["plan_envelope"])
+            if envelope_errors:
+                raise ValueError("invalid plan envelope: " + ", ".join(envelope_errors))
             run["plan_fingerprint"] = fingerprint(run["plan"])
             run["plan_signature"] = self.signer.sign(run["plan"])
             plan_security = authorize_payload(run["plan"])
@@ -138,11 +147,13 @@ class RemediationEngine:
             run["evidence_after"] = [item.as_dict() for item in collect_target_snapshot(verification)]
             run["evidence_comparison"] = compare_verification(run.get("inspection", {}), verification)
             run["verification_report"] = verify_snapshot(verification, require_healthy=plan.get("capability") != "terminate_sandbox_worker")
+            run["verification_engine"] = self.verification_engine.evaluate(verification)
             passed = passed and bool(run["verification_report"]["passed"] or plan.get("capability") == "terminate_sandbox_worker" and not verification.get("alive"))
             run["verification"] = verification
             run["status"] = "verified" if passed else "failed"
             run["result"] = {"status": "VERIFIED" if passed else "FAILED", "verification": verification}
             self.metrics.record_workflow(run["status"], plan.get("capability"))
+            run["learning"] = self.learning.record(Outcome(run_id, str(plan.get("capability")), str(run.get("scenario", "unknown")), run["status"], 0.0, passed)).as_dict()
             self._audit(run_id, "verification_completed", passed=passed, verification=verification)
             return run
 
@@ -162,7 +173,7 @@ class RemediationEngine:
 
     def state(self) -> dict[str, Any]:
         with self.lock:
-            return {"runs": list(self.runs.values()), "sandbox": self.sandbox.inspect(), "capabilities": self.capabilities, "metrics": self.metrics.snapshot()}
+            return {"runs": list(self.runs.values()), "sandbox": self.sandbox.inspect(), "capabilities": self.capabilities, "metrics": self.metrics.snapshot(), "learning": self.learning.snapshot()}
 
     def close(self) -> None:
         self.sandbox.close()

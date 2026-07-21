@@ -41,6 +41,10 @@ class ApiTests(unittest.TestCase):
     def test_scenario_and_capability_catalogs_are_public(self):
         self.assertEqual(len(self.call("/api/scenarios")), 3)
         self.assertGreaterEqual(len(self.call("/api/capabilities")), 3)
+        connectors = self.call("/api/connectors")
+        self.assertTrue(connectors["healthy"])
+        self.assertIn("servicenow-simulator", connectors["adapters"])
+        self.assertIn("aws-ec2-simulator", connectors["adapters"])
 
     def test_shadow_api_flow_skips_mutation(self):
         run = self.call("/api/alerts", "POST", {"scenario": "stale_heartbeat", "mode": "shadow"})
