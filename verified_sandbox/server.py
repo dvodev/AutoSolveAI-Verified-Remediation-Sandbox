@@ -33,6 +33,7 @@ HTML = MODERN_HTML
 
 class Handler(BaseHTTPRequestHandler):
     engine: RemediationEngine
+    orchestrator: Any = None
 
     def _json(self, status: int, payload: object) -> None:
         data = json.dumps(payload, default=str).encode("utf-8")
@@ -91,7 +92,8 @@ class Handler(BaseHTTPRequestHandler):
         route = urlparse(self.path).path
         try:
             if route == "/api/alerts":
-                result = self.engine.create_alert(self._body() or None)
+                body = self._body() or None
+                result = self.orchestrator.ingest(body or {}, source="synthetic") if self.orchestrator is not None else self.engine.create_alert(body)
             elif route.startswith("/api/runs/") and route.endswith("/plan"):
                 result = self.engine.plan(route.split("/")[3])
             elif route.startswith("/api/runs/") and route.endswith("/approve"):
@@ -111,8 +113,11 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
+    from .orchestrator import RemediationOrchestrator
     engine = RemediationEngine(os.getenv("SANDBOX_DATA_DIR", "data"))
     Handler.engine = engine
+    orchestrator = RemediationOrchestrator(engine)
+    Handler.orchestrator = orchestrator
     host = os.getenv("SANDBOX_HOST", "127.0.0.1")
     port = int(os.getenv("SANDBOX_PORT", "8787"))
     server = ThreadingHTTPServer((host, port), Handler)
@@ -122,7 +127,7 @@ def main() -> None:
     except KeyboardInterrupt:
         pass
     finally:
-        engine.close(); server.server_close()
+        orchestrator.close(); server.server_close()
 
 
 if __name__ == "__main__":

@@ -9,13 +9,16 @@ from http.server import ThreadingHTTPServer
 
 from verified_sandbox.engine import RemediationEngine
 from verified_sandbox.server import Handler
+from verified_sandbox.orchestrator import RemediationOrchestrator
 
 
 class ApiTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.engine = RemediationEngine(self.temp.name)
+        self.orchestrator = RemediationOrchestrator(self.engine)
         Handler.engine = self.engine
+        Handler.orchestrator = self.orchestrator
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -26,6 +29,7 @@ class ApiTests(unittest.TestCase):
         self.server.server_close()
         self.thread.join(timeout=3)
         self.engine.close()
+        self.orchestrator.close()
         self.temp.cleanup()
 
     def call(self, path: str, method: str = "GET", body: dict | None = None):
