@@ -59,6 +59,10 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(run["status"], "verified")
         self.assertGreaterEqual(len(self.call(f"/api/runs/{run['run_id']}/replay")), 3)
         self.assertTrue(self.call("/api/audit/verify")["valid"])
+        report = self.call(f"/api/runs/{run['run_id']}/report")
+        self.assertEqual(report["status"], "verified")
+        with urllib.request.urlopen(self.base + "/metrics", timeout=5) as response:
+            self.assertIn(b"sandbox_runs_total", response.read())
 
 
 if __name__ == "__main__":

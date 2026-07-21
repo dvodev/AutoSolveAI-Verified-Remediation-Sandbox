@@ -61,6 +61,16 @@ class Handler(BaseHTTPRequestHandler):
             self._json(200, self.engine.events.verify_chain())
         elif route == "/api/audit":
             self._json(200, self.engine.events.all())
+        elif route == "/metrics":
+            data = self.engine.metrics.prometheus().encode("utf-8")
+            self.send_response(200); self.send_header("Content-Type", "text/plain; version=0.0.4"); self.send_header("Content-Length", str(len(data))); self.end_headers(); self.wfile.write(data)
+        elif route.startswith("/api/runs/") and route.endswith("/report"):
+            from .reporting import build_report
+            run = self.engine.runs.get(route.split("/")[3])
+            if not run:
+                self._json(404, {"error": "run_not_found"})
+            else:
+                self._json(200, build_report(run, audit_chain=self.engine.events.verify_chain()).as_dict())
         elif route.startswith("/api/runs/") and route.endswith("/replay"):
             self._json(200, self.engine.replay(route.split("/")[3]))
         else:
