@@ -91,7 +91,9 @@ def generate_plan(alert: dict[str, Any], inspection: dict[str, Any]) -> dict[str
     try:
         with urllib.request.urlopen(request, timeout=float(os.getenv("OPENAI_TIMEOUT_SECONDS", "20"))) as response:
             plan = _extract_json(json.loads(response.read().decode("utf-8")))
-        return _validate(plan, inspection)
+        validated = _validate(plan, inspection)
+        validated["model"] = model
+        return validated
     except (urllib.error.URLError, TimeoutError, ValueError, KeyError, json.JSONDecodeError):
         # A missing/unavailable model never gets to execute an unvalidated plan.
         return _validate(_fallback(alert, inspection), inspection)
