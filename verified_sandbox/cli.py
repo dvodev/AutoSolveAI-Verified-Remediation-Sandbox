@@ -34,6 +34,7 @@ def parser() -> argparse.ArgumentParser:
     replay = commands.add_parser("replay", help="export the run and audit evidence")
     replay.add_argument("run_id")
     commands.add_parser("demo", help="run stale-heartbeat workflow to verification")
+    commands.add_parser("matrix", help="run every synthetic fault scenario")
     return root
 
 
@@ -57,6 +58,11 @@ def main(argv: list[str] | None = None) -> int:
             dump(orchestrator.export_run(args.run_id)); return 0
         if args.command == "demo":
             dump(orchestrator.run_to_completion({"scenario": "stale_heartbeat"})); return 0
+        if args.command == "matrix":
+            from .simulation import ScenarioRunner
+            orchestrator.close()
+            result = ScenarioRunner().matrix(["stale_heartbeat", "missing_process", "healthy_signal", "shadow_preview"], str(args.data_dir) + "/matrix")
+            dump(result); return 0 if result.get("passed") else 1
         return 2
     except (KeyError, ValueError, RuntimeError) as exc:
         print(json.dumps({"error": str(exc)}), file=sys.stderr)

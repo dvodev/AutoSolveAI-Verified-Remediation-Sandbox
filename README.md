@@ -26,6 +26,7 @@ The model is constrained to the sandbox's declared capability contract. A plan n
 python -m unittest discover -s tests -v
 python -m verified_sandbox.cli workflow
 python -m verified_sandbox.cli demo
+python -m verified_sandbox.cli matrix
 ```
 
 Optional configuration:

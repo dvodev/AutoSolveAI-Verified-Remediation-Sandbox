@@ -16,6 +16,10 @@ class CliTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             self.assertEqual(main(["--data-dir", directory, "demo"]), 0)
 
+    def test_matrix_command_succeeds(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertEqual(main(["--data-dir", directory, "matrix"]), 0)
+
     def test_invalid_command_arguments_return_nonzero(self):
         with tempfile.TemporaryDirectory() as directory:
             self.assertNotEqual(main(["--data-dir", directory, "execute", "missing"]), 0)
