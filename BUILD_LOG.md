@@ -22,4 +22,4 @@ The current standalone implementation is nearly 3,000 Python lines with 66 autom
 
 Before submitting, record the exact public repository URL and video URL in `SUBMISSION.md`. Do not claim that legacy production code was built during the challenge.
 
-Verification baseline: 66 automated tests pass; the four-scenario matrix passes 4/4, including a mocked configured-model planner path, entitlement-aware model selection, expanded connector/API checks, UI contract checks, target resolution, and dependency-ordered runbook execution.
+Verification baseline: 67 automated tests pass; the four-scenario matrix passes 4/4, including a mocked configured-model planner path, entitlement-aware model selection, expanded connector/API checks, UI contract checks, target resolution, dependency-ordered runbook execution, and repeated synthetic incident handling.

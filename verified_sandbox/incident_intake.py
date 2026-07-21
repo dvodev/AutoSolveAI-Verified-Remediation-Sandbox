@@ -12,6 +12,7 @@ import threading
 import time
 from dataclasses import dataclass, field
 from typing import Any, Mapping
+from uuid import uuid4
 
 from .contracts import canonical_json, redact
 from .models import Alert
@@ -79,6 +80,11 @@ class IncidentNormalizer:
         target = body.get("target") or body.get("target_id") or labels.get("target") or labels.get("instance") or body.get("resource_id")
         severity = normalize_severity(body.get("severity") or body.get("priority") or labels.get("severity"))
         stable = {"source": source, "title": str(title), "service": str(service), "target": target, "labels": labels}
+        # A repeated synthetic button press is a new demo incident. Real
+        # provider webhooks remain deduplicated by their explicit IDs.
+        explicit_id = body.get("incident_id") or body.get("alert_id") or body.get("id") or body.get("fingerprint")
+        if source == "synthetic" and not explicit_id:
+            stable["simulation_nonce"] = uuid4().hex
         digest = hashlib.sha256(canonical_json(stable).encode()).hexdigest()[:20]
         incident_id = str(body.get("incident_id") or body.get("alert_id") or body.get("id") or body.get("fingerprint") or f"INC-{digest[:10].upper()}")
         return IncidentEnvelope(incident_id, digest, source, str(title), str(message), severity, str(service), str(target) if target else None, labels, time.time(), dict(payload))

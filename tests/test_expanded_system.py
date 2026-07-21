@@ -37,6 +37,12 @@ class ExpandedSystemTests(unittest.TestCase):
         related = intake.ingest({"id": "b", "title": "still down", "service": "checkout"}, "synthetic")
         self.assertTrue(first.accepted); self.assertTrue(duplicate.duplicate); self.assertEqual(related.correlated_incident_id, "a")
 
+    def test_repeated_synthetic_button_presses_create_new_incidents(self):
+        intake = IncidentIntake(dedupe_seconds=60)
+        first = intake.ingest({"scenario": "stale_heartbeat", "mode": "approval"}, "synthetic")
+        second = intake.ingest({"scenario": "stale_heartbeat", "mode": "approval"}, "synthetic")
+        self.assertTrue(first.accepted); self.assertTrue(second.accepted); self.assertFalse(second.duplicate)
+
     def test_router_selects_registered_restart_for_unhealthy_worker(self):
         decision = CapabilityRouter().decide({"title": "stale heartbeat", "message": "worker hung"}, {"healthy": False}, load_capabilities())
         self.assertEqual(decision.selected, "restart_sandbox_worker")
