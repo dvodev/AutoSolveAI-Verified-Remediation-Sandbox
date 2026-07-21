@@ -16,3 +16,5 @@ The recording uses synthetic data only. It does not control the real Snipping To
 `autosolve_real_snipping_tool_demo.webm` is the separately gated local-target proof. It records the AI plan and approval, then closes the exact live `SnippingTool.exe` PID and verifies that Windows no longer reports that process. This local-target recording is not the default contest sandbox path and should only be run with explicit operator authorization.
 
 `autosolve_real_desktop_demo.mp4` is the judge-facing full workflow. It uses a clear page recording with an actual native Windows Snipping Tool capture and PID panel, shows the natural-language alert, prior-resolution lookup, GPT-5.6 plan provenance, approval gate, execution, and final verified evidence. The exact live PID is terminated only after approval; the native target panel changes to `WINDOW GONE` and the final screen shows the verified audit result. The recording is operator-authorized and uses the local OpenAI key only in memory; no key is stored in the repository.
+
+`autosolve_natural_language_snipping_tool_demo_final.mp4` is the uniquely named final copy so the latest take is unambiguous in File Explorer.

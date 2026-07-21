@@ -17,3 +17,5 @@ The submitted recording is [`artifacts/autosolve_verified_remediation_demo.webm`
 For the operator-authorized local proof, use [`artifacts/autosolve_real_snipping_tool_demo.webm`](artifacts/autosolve_real_snipping_tool_demo.webm). That recording shows the exact Windows `SnippingTool.exe` PID being closed after the AI plan and approval, followed by a process-absent verification. Do not present that local-target proof as the default sandbox boundary.
 
 The full capture for judging is [`artifacts/autosolve_real_desktop_demo.mp4`](artifacts/autosolve_real_desktop_demo.mp4). It shows a readable native Windows Snipping Tool capture and live PID panel before approval, the prior-resolution lookup, the GPT-5.6 plan and human gate, the real PID termination, the panel changing to `WINDOW GONE`, and the final `VERIFIED` evidence view.
+
+Use [`artifacts/autosolve_natural_language_snipping_tool_demo_final.mp4`](artifacts/autosolve_natural_language_snipping_tool_demo_final.mp4) when selecting the latest uniquely named file in File Explorer.
