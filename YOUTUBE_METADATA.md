@@ -6,7 +6,7 @@ AI Fixes a Stuck App — Verified Windows Remediation with GPT-5.6
 
 ## Description
 
-AutoSolve AI turns a natural-language incident into a reviewed, executable remediation—and refuses to call it solved until independent evidence proves the outcome.
+From “Snipping Tool is stuck” to verified recovery: AutoSolve uses GPT-5.6 to create safe, approved remediations for known or unfamiliar incidents—and proves the fix actually worked.
 
 In this demo, I report that Snipping Tool on my local Windows machine is stuck open and will not close. AutoSolve checks whether a prior verified resolution exists. When no reusable match is found, it inspects the target and asks GPT-5.6 to generate a constrained plan from the available capability registry.
 

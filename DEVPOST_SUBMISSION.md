@@ -6,7 +6,7 @@ Use this as the paste-ready source for the Devpost form. Replace only the fields
 
 - **Title:** AutoSolve AI — Verified Remediation Sandbox
 - **Track:** Developer Tools
-- **Tagline:** Turn an ambiguous incident into an approved, executable remediation—and refuse to call it solved until independent evidence proves the outcome.
+- **Tagline:** From “Snipping Tool is stuck” to verified recovery: AutoSolve uses GPT-5.6 to create safe, approved remediations for known or unfamiliar incidents—and proves the fix actually worked.
 - **Repository:** https://github.com/dvodev/AutoSolveAI-Verified-Remediation-Sandbox
 - **Demo video:** https://youtu.be/8FyZQrSK7kU
 - **Codex `/feedback` Session ID:** `019f70ae-deef-7e51-a596-81c08bb2650c`

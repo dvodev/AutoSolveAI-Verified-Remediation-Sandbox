@@ -6,7 +6,7 @@ Developer Tools — verified incident remediation.
 
 ## One-sentence pitch
 
-AutoSolve AI turns a monitoring alert into a reviewed, executable remediation and refuses to call it solved until the target independently proves recovery—or safely demonstrates that no change is needed.
+From “Snipping Tool is stuck” to verified recovery: AutoSolve uses GPT-5.6 to create safe, approved remediations for known or unfamiliar incidents—and proves the fix actually worked.
 
 ## The judge-visible workflow
 
