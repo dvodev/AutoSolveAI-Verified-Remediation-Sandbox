@@ -7,7 +7,7 @@ Use this as the paste-ready source for the Devpost form. Replace only the fields
 - **Title:** AutoSolve AI — Verified Remediation Sandbox
 - **Track:** Developer Tools
 - **Tagline:** Turn an ambiguous incident into an approved, executable remediation—and refuse to call it solved until independent evidence proves the outcome.
-- **Repository:** `REPLACE_WITH_PUBLIC_GITHUB_URL`
+- **Repository:** https://github.com/dvodev/AutoSolveAI-Verified-Remediation-Sandbox
 - **Demo video:** `REPLACE_WITH_PUBLIC_YOUTUBE_URL`
 - **Codex `/feedback` Session ID:** `019f70ae-deef-7e51-a596-81c08bb2650c`
 
