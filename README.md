@@ -1,12 +1,25 @@
 # AutoSolve AI — Verified Remediation Sandbox
 
-**A standalone Codex challenge demonstration.** It receives a synthetic monitoring alert, inspects a disposable worker, asks GPT to produce a structured remediation plan, enforces human approval, executes only an allowlisted sandbox capability, and proves the result with an independent heartbeat check.
+**A standalone Codex challenge demonstration for the Developer Tools track.** It receives a synthetic monitoring alert, checks for a prior verified resolution, inspects a disposable worker, asks GPT-5.6 to produce a structured remediation plan, enforces human approval, executes only an allowlisted sandbox capability, and proves the result with an independent heartbeat check.
 
 This repository is intentionally clean-room and self-contained. It does not import, vendor, copy, or connect to the production AutoSolveAI repository. It contains no customer data, production credentials, cloud integrations, or host-service control.
 
 ## Run it
 
 Requires Python 3.10+.
+
+### Clean setup
+
+From a fresh clone:
+
+```powershell
+py -3.10 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e .
+```
+
+No API key is required for the deterministic, safe offline fallback. To use live GPT-5.6 planning, set `OPENAI_API_KEY` in the current shell only; never commit a `.env` file or key.
 
 ```powershell
 python -m verified_sandbox
@@ -32,6 +45,8 @@ python -m verified_sandbox.cli connectors
 python -m verified_sandbox.cli run --scenario stale_heartbeat
 ```
 
+The HTTP server listens on `127.0.0.1:8787` by default. Set `SANDBOX_PORT` to choose another local port. The workflow is approval-gated by default; Shadow mode collects evidence and plans without mutating the disposable worker.
+
 Optional configuration:
 
 ```powershell
@@ -39,6 +54,25 @@ $env:OPENAI_API_KEY = "..."
 $env:OPENAI_MODEL = "gpt-5.6"
 $env:SANDBOX_PORT = "8787"
 ```
+
+## How Codex and GPT-5.6 are used
+
+Codex was used to build and iterate on the standalone incident intake, prior-resolution lookup, explainable capability routing, typed plan validation, approval state machine, execution boundary, independent verification, audit replay, connector simulators, UI, and test/release checks. The dated implementation history is documented in [BUILD_LOG.md](BUILD_LOG.md).
+
+GPT-5.6 is the runtime planner when `OPENAI_API_KEY` is configured. It receives the normalized alert, inspected target evidence, routing recommendation, and capability manifest; it must return a structured JSON plan. The sandbox validates the capability, target, steps, risk, and verification requirements before any action can execute. If the model is unavailable, the system uses a deterministic constrained fallback and never executes an unvalidated model response.
+
+Primary Codex `/feedback` Session ID: `019f70ae-deef-7e51-a596-81c08bb2650c`.
+
+## Testing and judge verification
+
+Run the complete automated suite and release boundary check:
+
+```powershell
+python -m unittest discover -s tests -q
+python -m verified_sandbox.cli release-check
+```
+
+The tests cover API lifecycle transitions, duplicate intake, routing, planner schema validation, approval/shadow policy, execution and verification, rollback/replay, connector health, security/redaction, and the scenario matrix. For a manual judge run, open the UI, enter any free-form incident, confirm the prior-resolution result, generate the plan, approve it, execute, and verify the evidence/audit chain.
 
 ## What the demo proves
 

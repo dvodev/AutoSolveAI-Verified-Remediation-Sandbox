@@ -27,6 +27,7 @@ The production AutoSolveAI project predates the challenge. This submission does 
 ## Judge setup
 
 ```powershell
+python -m pip install -e .
 python -m unittest discover -s tests -v
 python -m verified_sandbox
 ```
@@ -36,5 +37,5 @@ The demo works without an API key using a deterministic safe fallback. Set `OPEN
 ## Links to provide at submission time
 
 - Public repository: replace with the dedicated repository URL.
-- YouTube video (under three minutes): replace with the published URL.
+- YouTube video (under three minutes): replace with the published URL for [`autosolve_natural_language_snipping_tool_demo_final.mp4`](artifacts/autosolve_natural_language_snipping_tool_demo_final.mp4).
 - Codex session ID: `019f70ae-deef-7e51-a596-81c08bb2650c` (the session in which the standalone core was built).
