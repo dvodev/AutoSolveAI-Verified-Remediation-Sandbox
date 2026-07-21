@@ -14,8 +14,8 @@ This file is deliberately explicit about provenance. The production AutoSolveAI 
 
 Codex build session: `019f70ae-deef-7e51-a596-81c08bb2650c`.
 
-The current standalone implementation is over 2,000 Python lines with 46 automated tests. The line count reflects typed domain contracts, adapters, orchestration, security gates, evidence processing, simulation, replay, reporting, CLI, API, and tests—not copied production code.
+The current standalone implementation is over 2,000 Python lines with 51 automated tests. The line count reflects typed domain contracts, adapters, orchestration, security gates, evidence processing, simulation, replay, reporting, CLI, API, release checks, and tests—not copied production code.
 
 Before submitting, record the exact public repository URL and video URL in `SUBMISSION.md`. Do not claim that legacy production code was built during the challenge.
 
-Verification baseline: 50 automated tests pass; the four-scenario matrix passes 4/4.
+Verification baseline: 51 automated tests pass; the four-scenario matrix passes 4/4, including a mocked configured-model planner path.
