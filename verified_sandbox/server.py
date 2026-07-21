@@ -8,6 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
 from .engine import RemediationEngine
+from .ui import HTML as MODERN_HTML
 
 
 HTML = """<!doctype html>
@@ -24,6 +25,10 @@ async function call(path,method='GET',body){const r=await fetch(path,{method,hea
 async function run(action){try{if(action==='alert'){const x=await call('/api/alerts','POST',{scenario:document.querySelector('#scenario').value,mode:document.querySelector('#mode').value});runId=x.run_id}else if(action==='plan'){await call('/api/runs/'+runId+'/plan','POST')}else if(action==='approve'){await call('/api/runs/'+runId+'/approve','POST')}else if(action==='replay'){const x=await call('/api/runs/'+runId+'/replay');document.querySelector('#view').innerHTML='<h2>Audit replay</h2><pre>'+JSON.stringify(x,null,2)+'</pre>';return}else if(action==='rollback'){await call('/api/runs/'+runId+'/rollback','POST')}else{await call('/api/runs/'+runId+'/execute','POST')}const s=await call('/api/state');render(s)}catch(e){document.querySelector('#view').innerHTML='<p class="bad">'+e+'</p>'}}
 function render(s){const r=s.runs.at(-1);const verified=r?.status==='verified';document.querySelector('#view').innerHTML='<h2>Status: <span class="pill '+(verified?'ok':'')+'">'+(r?.status||'idle')+'</span></h2><p>Capabilities are loaded from a manifest; the plan cannot name anything outside it.</p><pre>'+JSON.stringify(r||s,null,2)+'</pre>'}
 </script></body></html>"""
+
+# Keep the HTTP handler dependency-free, but serve the maintained UI module
+# rather than the original prototype markup above.
+HTML = MODERN_HTML
 
 
 class Handler(BaseHTTPRequestHandler):

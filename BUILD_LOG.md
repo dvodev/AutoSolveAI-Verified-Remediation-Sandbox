@@ -11,11 +11,12 @@ This file is deliberately explicit about provenance. The production AutoSolveAI 
 | 2026-07-21 | Typed contracts, evidence model, adapter registry, and durable store | `verified_sandbox/models.py`, `contracts.py`, `evidence.py`, `adapters.py`, `storage.py` |
 | 2026-07-21 | Event orchestration, security gates, metrics, fault matrix, replay bundles, and reports | `verified_sandbox/orchestrator.py`, `security.py`, `metrics.py`, `simulation.py`, `replay.py`, `reporting.py` |
 | 2026-07-21 | Release-boundary scanner and audit-chain restart continuity | `verified_sandbox/release_check.py`, `tests/test_release_check.py`, `tests/test_orchestrator.py` |
+| 2026-07-21 | Judge-facing incident command UI with dynamic scenario/capability rendering and evidence timeline | `verified_sandbox/ui.py`, `tests/test_server_ui.py` |
 
 Codex build session: `019f70ae-deef-7e51-a596-81c08bb2650c`.
 
-The current standalone implementation is over 2,000 Python lines with 51 automated tests. The line count reflects typed domain contracts, adapters, orchestration, security gates, evidence processing, simulation, replay, reporting, CLI, API, release checks, and tests—not copied production code.
+The current standalone implementation is over 2,000 Python lines with 52 automated tests. The line count reflects typed domain contracts, adapters, orchestration, security gates, evidence processing, simulation, replay, reporting, CLI, API, release checks, the command UI, and tests—not copied production code.
 
 Before submitting, record the exact public repository URL and video URL in `SUBMISSION.md`. Do not claim that legacy production code was built during the challenge.
 
-Verification baseline: 51 automated tests pass; the four-scenario matrix passes 4/4, including a mocked configured-model planner path.
+Verification baseline: 52 automated tests pass; the four-scenario matrix passes 4/4, including a mocked configured-model planner path and UI contract checks.
