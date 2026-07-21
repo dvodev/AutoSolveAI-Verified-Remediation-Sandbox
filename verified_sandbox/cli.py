@@ -20,6 +20,7 @@ def parser() -> argparse.ArgumentParser:
     root.add_argument("--data-dir", default="data", help="durable audit/run directory")
     commands = root.add_subparsers(dest="command", required=True)
     commands.add_parser("workflow", help="show workflow steps and adapter health")
+    commands.add_parser("connectors", help="show provider-shaped connector health")
     alert = commands.add_parser("alert", help="create a synthetic alert")
     alert.add_argument("--scenario", default="stale_heartbeat")
     alert.add_argument("--mode", choices=("approval", "shadow"), default="approval")
@@ -34,6 +35,9 @@ def parser() -> argparse.ArgumentParser:
     replay = commands.add_parser("replay", help="export the run and audit evidence")
     replay.add_argument("run_id")
     commands.add_parser("demo", help="run stale-heartbeat workflow to verification")
+    run = commands.add_parser("run", help="execute a complete synthetic incident workflow")
+    run.add_argument("--scenario", default="stale_heartbeat")
+    run.add_argument("--mode", choices=("approval", "shadow"), default="approval")
     commands.add_parser("matrix", help="run every synthetic fault scenario")
     commands.add_parser("release-check", help="check public submission files and high-confidence secrets")
     return root
@@ -45,6 +49,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "workflow":
             dump(orchestrator.workflow()); return 0
+        if args.command == "connectors":
+            dump(orchestrator.workflow()["adapter_health"]); return 0
         if args.command == "alert":
             dump(orchestrator.ingest({"scenario": args.scenario, "mode": args.mode})); return 0
         if args.command == "plan":
@@ -59,6 +65,9 @@ def main(argv: list[str] | None = None) -> int:
             dump(orchestrator.export_run(args.run_id)); return 0
         if args.command == "demo":
             dump(orchestrator.run_to_completion({"scenario": "stale_heartbeat"})); return 0
+        if args.command == "run":
+            result = orchestrator.run_to_completion({"scenario": args.scenario, "mode": args.mode})
+            dump(result); return 0 if result.get("status") in {"verified", "shadowed"} else 1
         if args.command == "matrix":
             from .simulation import ScenarioRunner
             orchestrator.close()

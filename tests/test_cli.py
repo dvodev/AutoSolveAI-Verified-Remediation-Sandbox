@@ -12,6 +12,11 @@ class CliTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             self.assertEqual(main(["--data-dir", directory, "workflow"]), 0)
 
+    def test_connector_and_run_commands_succeed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertEqual(main(["--data-dir", directory, "connectors"]), 0)
+            self.assertEqual(main(["--data-dir", directory, "run", "--scenario", "healthy_signal"]), 0)
+
     def test_demo_command_succeeds(self):
         with tempfile.TemporaryDirectory() as directory:
             self.assertEqual(main(["--data-dir", directory, "demo"]), 0)

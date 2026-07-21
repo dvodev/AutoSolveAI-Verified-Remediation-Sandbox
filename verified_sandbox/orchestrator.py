@@ -20,6 +20,7 @@ from .incident_intake import IncidentIntake
 from .models import RunStatus, TargetRef
 from .policy_engine import PolicyEngine
 from .runbook import RunbookSynthesizer
+from .target_resolution import TargetResolver
 
 
 @dataclass(frozen=True)
@@ -96,6 +97,7 @@ class RemediationOrchestrator:
         self.policy_engine = PolicyEngine()
         self.runtime = ExecutionRuntime()
         self.runbook_synthesizer = RunbookSynthesizer()
+        self.target_resolver = TargetResolver()
         self.adapters = AdapterRegistry([
             DatadogAdapter(), PrometheusAdapter(), SandboxWorkerAdapter(self.engine.sandbox), MemoryTicketingAdapter(), ServiceNowSimulatorAdapter(), AwsEc2SimulatorAdapter(),
         ])
@@ -115,6 +117,7 @@ class RemediationOrchestrator:
             alert = dict(payload)
         run = self.engine.create_alert(alert)
         run["intake"] = intake.as_dict()
+        run["target_resolution"] = self.target_resolver.resolve(alert).as_dict()
         route_preview = self.router.decide(alert, run.get("inspection", {}), self.engine.capabilities)
         run["route_preview"] = route_preview.as_dict()
         run["runbook"] = self.runbook_synthesizer.synthesize(alert, run.get("inspection", {}), run["route_preview"], self.engine.capabilities).as_dict()

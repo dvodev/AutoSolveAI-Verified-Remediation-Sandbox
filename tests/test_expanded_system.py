@@ -15,6 +15,7 @@ from verified_sandbox.learning import LearningLedger, Outcome
 from verified_sandbox.plan_envelope import ensure_envelope, validate_envelope
 from verified_sandbox.verification_engine import CheckSpec, VerificationEngine
 from verified_sandbox.runbook import RunbookExecutor, RunbookSynthesizer
+from verified_sandbox.target_resolution import TargetResolver
 from verified_sandbox.registry import load_capabilities
 
 
@@ -86,6 +87,12 @@ class ExpandedSystemTests(unittest.TestCase):
         executor = RunbookExecutor({kind: (lambda step, kind=kind: observed.append(kind) or {"ok": True}) for kind in ("inspect", "reason", "policy", "execute", "verify")})
         result = executor.execute(runbook)
         self.assertEqual(result.status, "verified"); self.assertEqual(observed[0:2], ["inspect", "reason"]); self.assertIn("execute", observed)
+
+    def test_target_resolution_returns_explainable_synthetic_match(self):
+        resolution = TargetResolver().resolve({"service": "checkout-worker", "message": "heartbeat stale"})
+        self.assertEqual(resolution.status, "resolved")
+        self.assertEqual(resolution.selected.target_id, "synthetic.local.worker")
+        self.assertIn("service matched alert", resolution.reason)
 
     def test_workflow_exposes_expanded_controls_and_connectors(self):
         with tempfile.TemporaryDirectory() as directory:
