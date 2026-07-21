@@ -99,4 +99,4 @@ The tests cover API lifecycle transitions, duplicate intake, routing, planner sc
 
 This is the hackathon edition, not the production AutoSolveAI platform. The target is always `synthetic.local.worker`; the only executable actions are against that disposable process. No secrets are committed. No production repository history is included.
 
-See [SUBMISSION.md](SUBMISSION.md), [DEMO_SCRIPT.md](DEMO_SCRIPT.md), and [BUILD_LOG.md](BUILD_LOG.md).
+See [SUBMISSION.md](SUBMISSION.md), [DEVPOST_SUBMISSION.md](DEVPOST_SUBMISSION.md), [YOUTUBE_METADATA.md](YOUTUBE_METADATA.md), [DEMO_SCRIPT.md](DEMO_SCRIPT.md), and [BUILD_LOG.md](BUILD_LOG.md). The upload thumbnail is [artifacts/youtube_thumbnail.png](artifacts/youtube_thumbnail.png).
