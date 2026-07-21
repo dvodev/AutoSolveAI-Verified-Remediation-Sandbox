@@ -27,6 +27,7 @@ python -m unittest discover -s tests -v
 python -m verified_sandbox.cli workflow
 python -m verified_sandbox.cli demo
 python -m verified_sandbox.cli matrix
+python -m verified_sandbox.cli release-check
 ```
 
 Optional configuration:
@@ -53,6 +54,7 @@ $env:SANDBOX_PORT = "8787"
 - signed plan envelopes, payload security inspection, secret redaction, and sandbox-boundary enforcement
 - fault-injection scenario matrix, replay bundles, markdown/HTML reports, and Prometheus-style metrics
 - safe offline behavior when no model credential is configured
+- local release-boundary checks for high-confidence credentials, sensitive filenames, required submission files, and a clean worktree
 
 ## Submission boundaries
 

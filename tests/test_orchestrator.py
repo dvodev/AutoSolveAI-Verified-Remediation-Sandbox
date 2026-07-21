@@ -51,6 +51,20 @@ class OrchestratorTests(unittest.TestCase):
             finally:
                 orchestrator.close()
 
+    def test_audit_chain_continues_after_engine_restart(self):
+        with tempfile.TemporaryDirectory() as directory:
+            first = RemediationOrchestrator(RemediationEngine(directory))
+            try:
+                first.run_to_completion({"scenario": "healthy_signal"})
+            finally:
+                first.close()
+            second = RemediationOrchestrator(RemediationEngine(directory))
+            try:
+                second.run_to_completion({"scenario": "healthy_signal"})
+                self.assertTrue(second.engine.events.verify_chain()["valid"])
+            finally:
+                second.close()
+
 
 if __name__ == "__main__":
     unittest.main()

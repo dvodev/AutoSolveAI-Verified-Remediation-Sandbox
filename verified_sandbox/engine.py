@@ -35,7 +35,12 @@ class RemediationEngine:
         self.runs: dict[str, dict[str, Any]] = {}
         self.sandbox.reset()
         self.capabilities = load_capabilities()
-        self.previous_audit_hash = "0" * 64
+        # Continue the audit chain across process restarts.  Without this,
+        # starting the API a second time would append an event whose
+        # ``previous_hash`` points at the zero sentinel instead of the
+        # existing log head, making an otherwise valid log fail verification.
+        existing_events = self.events.all()
+        self.previous_audit_hash = str(existing_events[-1].get("hash", "0" * 64)) if existing_events else "0" * 64
 
     def _audit(self, run_id: str, event: str, **details: Any) -> None:
         record = {"timestamp": time.time(), "run_id": run_id, "event": event, "previous_hash": self.previous_audit_hash, **details}
