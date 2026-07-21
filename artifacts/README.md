@@ -18,3 +18,10 @@ The recording uses synthetic data only. It does not control the real Snipping To
 `autosolve_real_desktop_demo.mp4` is the judge-facing full workflow. It uses a clear page recording with an actual native Windows Snipping Tool capture and PID panel, shows the natural-language alert, prior-resolution lookup, GPT-5.6 plan provenance, approval gate, execution, and final verified evidence. The exact live PID is terminated only after approval; the native target panel changes to `WINDOW GONE` and the final screen shows the verified audit result. The recording is operator-authorized and uses the local OpenAI key only in memory; no key is stored in the repository.
 
 `autosolve_natural_language_snipping_tool_demo_final.mp4` is the uniquely named final copy so the latest take is unambiguous in File Explorer.
+
+The `devpost_*.png` files are still frames from that final recording for the Devpost project gallery:
+
+- `devpost_incident_intake.png` shows the natural-language incident and the visible native Snipping Tool target.
+- `devpost_plan_generated.png` shows the GPT-5.6 plan provenance and approval gate.
+- `devpost_execution.png` shows the explicit execution-and-verify action after approval.
+- `devpost_verified_audit.png` shows `WINDOW GONE`, before/after evidence, and the verified audit trail.
