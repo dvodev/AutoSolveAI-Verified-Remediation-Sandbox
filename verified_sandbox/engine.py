@@ -22,7 +22,7 @@ from .metrics import MetricsRegistry
 from .security import PlanSigner, authorize_payload
 from .learning import LearningLedger, Outcome
 from .plan_envelope import ensure_envelope, validate_envelope
-from .verification_engine import VerificationEngine
+from .verification_engine import CheckSpec, VerificationEngine
 
 
 class RemediationEngine:
@@ -153,7 +153,8 @@ class RemediationEngine:
             run["evidence_after"] = [item.as_dict() for item in collect_target_snapshot(verification)]
             run["evidence_comparison"] = compare_verification(run.get("inspection", {}), verification)
             run["verification_report"] = verify_snapshot(verification, require_healthy=plan.get("capability") != "terminate_sandbox_worker")
-            run["verification_engine"] = self.verification_engine.evaluate(verification)
+            checks = [CheckSpec("worker stopped", "alive", "eq", False)] if plan.get("capability") == "terminate_sandbox_worker" else None
+            run["verification_engine"] = self.verification_engine.evaluate(verification, checks)
             passed = passed and bool(run["verification_report"]["passed"] or plan.get("capability") == "terminate_sandbox_worker" and not verification.get("alive"))
             run["verification"] = verification
             run["status"] = "verified" if passed else "failed"

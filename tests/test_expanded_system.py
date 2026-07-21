@@ -111,6 +111,11 @@ class ExpandedSystemTests(unittest.TestCase):
                 self.assertEqual(run["route_preview"]["selected"], "terminate_sandbox_worker")
                 planned = orchestrator.plan(run["run_id"])
                 self.assertEqual(planned["plan"]["capability"], "terminate_sandbox_worker")
+                completed = orchestrator.authorize(planned["run_id"])
+                completed = orchestrator.execute(completed["run_id"])
+                self.assertEqual(completed["status"], "verified")
+                self.assertFalse(completed["verification"]["alive"])
+                self.assertTrue(completed["verification_engine"]["passed"])
             finally:
                 orchestrator.close()
 

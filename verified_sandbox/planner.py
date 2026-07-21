@@ -64,14 +64,17 @@ def generate_plan(alert: dict[str, Any], inspection: dict[str, Any]) -> dict[str
     if not api_key:
         return _validate(_fallback(alert, inspection), inspection)
     model = resolve_model(api_key, os.getenv("OPENAI_MODEL", "gpt-5.6"))
+    route = CapabilityRouter().decide(alert, inspection, load_capabilities())
     system = (
         "You are a constrained incident-remediation planner. Return JSON only with keys "
         "capability,target,reasoning,steps,verification,risk. You may select only the "
         "capabilities listed in the supplied manifest. The target is synthetic and "
         "local; never invent commands, credentials, hosts, or capabilities. Verification "
-        "must require a healthy worker heartbeat younger than three seconds."
+        "must require a healthy worker heartbeat younger than three seconds. Use the supplied routing recommendation as a strong safety prior: "
+        "when the alert explicitly says an application is unresponsive, stuck, or will not close, select the recommended termination capability; "
+        "do not substitute a restart merely because the synthetic worker is unhealthy."
     )
-    user = json.dumps({"alert": alert, "inspection": inspection, "capabilities": load_capabilities()}, sort_keys=True)
+    user = json.dumps({"alert": alert, "inspection": inspection, "routing_recommendation": route.as_dict(), "capabilities": load_capabilities()}, sort_keys=True)
     request_body = {
         "model": model,
         "response_format": {"type": "json_object"},
