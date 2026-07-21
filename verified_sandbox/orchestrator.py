@@ -117,6 +117,15 @@ class RemediationOrchestrator:
             alert = dict(payload)
         run = self.engine.create_alert(alert)
         run["intake"] = intake.as_dict()
+        prior_matches = []
+        for previous in self.engine.runs.values():
+            if previous.get("run_id") == run.get("run_id"):
+                continue
+            previous_alert = previous.get("alert") or {}
+            if (str(previous_alert.get("service") or "") == str(alert.get("service") or "")
+                    and str(previous_alert.get("title") or "").strip().lower() == str(alert.get("title") or "").strip().lower()):
+                prior_matches.append({"run_id": previous.get("run_id"), "status": previous.get("status"), "plan": (previous.get("plan") or {}).get("capability")})
+        run["resolution_lookup"] = {"matched": bool(prior_matches), "matches": prior_matches[-5:], "decision": "reinspect_and_revalidate" if prior_matches else "generate_new_dynamic_plan"}
         run["target_resolution"] = self.target_resolver.resolve(alert).as_dict()
         route_preview = self.router.decide(alert, run.get("inspection", {}), self.engine.capabilities)
         run["route_preview"] = route_preview.as_dict()
