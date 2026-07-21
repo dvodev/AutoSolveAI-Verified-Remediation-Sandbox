@@ -17,6 +17,7 @@ This is a clean-room Developer Tools hackathon sandbox. The repository uses synt
 Codex was used to build the incident intake, history lookup, dynamic routing, policy gate, execution boundary, verification, audit replay, connector simulators, UI, and test/release checks. GPT-5.6 is integrated as the runtime planner that produces and validates structured remediation plans.
 
 Repository: https://github.com/dvodev/AutoSolveAI-Verified-Remediation-Sandbox
+Demo video: https://youtu.be/8FyZQrSK7kU
 Build session: 019f70ae-deef-7e51-a596-81c08bb2650c
 
 ## Chapters
