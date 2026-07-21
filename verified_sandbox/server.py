@@ -57,6 +57,10 @@ class Handler(BaseHTTPRequestHandler):
         elif route == "/api/scenarios":
             from .scenarios import SCENARIOS
             self._json(200, SCENARIOS)
+        elif route == "/api/audit/verify":
+            self._json(200, self.engine.events.verify_chain())
+        elif route == "/api/audit":
+            self._json(200, self.engine.events.all())
         elif route.startswith("/api/runs/") and route.endswith("/replay"):
             self._json(200, self.engine.replay(route.split("/")[3]))
         else:

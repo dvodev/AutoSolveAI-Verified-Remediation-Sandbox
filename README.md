@@ -24,6 +24,8 @@ The model is constrained to the sandbox's declared capability contract. A plan n
 
 ```powershell
 python -m unittest discover -s tests -v
+python -m verified_sandbox.cli workflow
+python -m verified_sandbox.cli demo
 ```
 
 Optional configuration:
@@ -45,6 +47,10 @@ $env:SANDBOX_PORT = "8787"
 - independent post-action verification
 - append-only hash-chained JSONL audit events with a terminal `VERIFIED` or `FAILED` result
 - rollback and replay evidence
+- provider-neutral adapters for Datadog/Prometheus-style alerts, targets, and ticket updates
+- CLI and workflow/event-bus facades for reproducible judge scripts
+- signed plan envelopes, payload security inspection, secret redaction, and sandbox-boundary enforcement
+- fault-injection scenario matrix, replay bundles, markdown/HTML reports, and Prometheus-style metrics
 - safe offline behavior when no model credential is configured
 
 ## Submission boundaries

@@ -12,6 +12,8 @@ AutoSolve AI turns a monitoring alert into a reviewed, executable remediation an
 
 Synthetic alert → inspect worker/OS/logs → GPT structured plan → capability/policy gate → approval or shadow mode → restart/observe/terminate disposable worker → independent verification → hash-chained audit replay and rollback.
 
+The implementation includes a provider-neutral adapter layer, typed contracts, signed plan envelopes, security/redaction gates, fault-injection matrix, replayable run bundles, metrics, CLI workflows, and judge-facing reports. These are new standalone hackathon components, not imported production modules.
+
 ## Scope and ownership boundary
 
 This repository is a standalone implementation created for the hackathon demonstration. It is not a branch or export of the pre-existing AutoSolveAI application. It uses synthetic incidents and a disposable local process only. No company equipment, confidential incidents, internal architecture, customer records, production secrets, or production source are required to run it.
