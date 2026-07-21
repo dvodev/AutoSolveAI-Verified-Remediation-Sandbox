@@ -9,6 +9,7 @@ import urllib.request
 from typing import Any
 
 from .registry import load_capabilities
+from .model_selection import resolve_model
 
 
 def _fallback(alert: dict[str, Any], inspection: dict[str, Any]) -> dict[str, Any]:
@@ -62,7 +63,7 @@ def generate_plan(alert: dict[str, Any], inspection: dict[str, Any]) -> dict[str
     api_key = os.getenv("OPENAI_API_KEY", "").strip()
     if not api_key:
         return _validate(_fallback(alert, inspection), inspection)
-    model = os.getenv("OPENAI_MODEL", "gpt-5.6").strip() or "gpt-5.6"
+    model = resolve_model(api_key, os.getenv("OPENAI_MODEL", "gpt-5.6"))
     system = (
         "You are a constrained incident-remediation planner. Return JSON only with keys "
         "capability,target,reasoning,steps,verification,risk. You may select only the "

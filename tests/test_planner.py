@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import patch
 
 from verified_sandbox.planner import generate_plan
+from verified_sandbox.model_selection import clear_model_cache, resolve_model
 
 
 class _Response:
@@ -23,6 +24,9 @@ class _Response:
 
 
 class PlannerTests(unittest.TestCase):
+    def tearDown(self):
+        clear_model_cache()
+
     def test_configured_model_path_is_used_and_validated(self):
         payload = {"choices": [{"message": {"content": json.dumps({
             "capability": "restart_sandbox_worker",
@@ -40,6 +44,12 @@ class PlannerTests(unittest.TestCase):
         request_payload = json.loads(urlopen.call_args.args[0].data.decode("utf-8"))
         self.assertEqual(request_payload["model"], "gpt-5")
         self.assertNotIn("temperature", request_payload)
+
+    def test_model_selection_uses_available_frontier_model_without_printing_credentials(self):
+        catalog = _Response({"data": [{"id": "gpt-5.6"}, {"id": "gpt-5"}]})
+        with patch("urllib.request.urlopen", return_value=catalog):
+            selected = resolve_model("test-key", "gpt-5.6")
+        self.assertEqual(selected, "gpt-5.6")
 
 
 if __name__ == "__main__":
