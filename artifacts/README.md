@@ -12,3 +12,5 @@
 The recording also includes a clearly labeled **Snipping Tool — Sandbox target** window that visibly transitions from `NOT RESPONDING` to `CLOSING…` to `CLOSED / VERIFIED` when the AI-selected remediation executes.
 
 The recording uses synthetic data only. It does not control the real Snipping Tool or any production host.
+
+`autosolve_real_snipping_tool_demo.webm` is the separately gated local-target proof. It records the AI plan and approval, then closes the exact live `SnippingTool.exe` PID and verifies that Windows no longer reports that process. This local-target recording is not the default contest sandbox path and should only be run with explicit operator authorization.

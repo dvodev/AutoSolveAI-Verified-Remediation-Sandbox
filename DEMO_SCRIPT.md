@@ -13,3 +13,5 @@ The submitted recording is [`artifacts/autosolve_verified_remediation_demo.webm`
 **Execution and proof.** Execute the allowlisted termination. The visible target transitions `NOT RESPONDING` → `CLOSING…` → `CLOSED / VERIFIED`; then show stopped process evidence and the audit timeline.
 
 **Boundary.** State that the demo is clean-room and synthetic: it never touches the real Snipping Tool, production systems, or secrets.
+
+For the operator-authorized local proof, use [`artifacts/autosolve_real_snipping_tool_demo.webm`](artifacts/autosolve_real_snipping_tool_demo.webm). That recording shows the exact Windows `SnippingTool.exe` PID being closed after the AI plan and approval, followed by a process-absent verification. Do not present that local-target proof as the default sandbox boundary.
