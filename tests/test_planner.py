@@ -33,11 +33,13 @@ class PlannerTests(unittest.TestCase):
             "risk": "sandbox_only",
         })}}]}
         inspection = {"target": "synthetic.local.worker", "healthy": False}
-        with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key", "OPENAI_MODEL": "test-model"}), patch("urllib.request.urlopen", return_value=_Response(payload)) as urlopen:
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key", "OPENAI_MODEL": "gpt-5"}), patch("urllib.request.urlopen", return_value=_Response(payload)) as urlopen:
             plan = generate_plan({"title": "synthetic alert"}, inspection)
         self.assertEqual(plan["source"], "openai")
         self.assertEqual(plan["capability"], "restart_sandbox_worker")
-        self.assertIn("test-model", urlopen.call_args.args[0].data.decode("utf-8"))
+        request_payload = json.loads(urlopen.call_args.args[0].data.decode("utf-8"))
+        self.assertEqual(request_payload["model"], "gpt-5")
+        self.assertNotIn("temperature", request_payload)
 
 
 if __name__ == "__main__":

@@ -73,10 +73,14 @@ def generate_plan(alert: dict[str, Any], inspection: dict[str, Any]) -> dict[str
     user = json.dumps({"alert": alert, "inspection": inspection, "capabilities": load_capabilities()}, sort_keys=True)
     request_body = {
         "model": model,
-        "temperature": 0,
         "response_format": {"type": "json_object"},
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
     }
+    # GPT-5-family models currently reject non-default temperature values.
+    # Keep deterministic sampling for compatible legacy models, while making
+    # the model selection fully data/configuration driven.
+    if not model.lower().startswith("gpt-5"):
+        request_body["temperature"] = 0
     request = urllib.request.Request(
         "https://api.openai.com/v1/chat/completions",
         data=json.dumps(request_body).encode("utf-8"),
