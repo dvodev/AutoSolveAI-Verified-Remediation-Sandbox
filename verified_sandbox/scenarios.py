@@ -32,3 +32,8 @@ def get_scenario(name: str | None) -> tuple[str, dict[str, Any]]:
     if key not in SCENARIOS:
         raise ValueError(f"unknown synthetic scenario: {key}")
     return key, dict(SCENARIOS[key])
+
+
+def custom_scenario(title: str, message: str, service: str = "synthetic-app") -> tuple[str, dict[str, Any]]:
+    """Represent an arbitrary operator alert on the disposable worker."""
+    return "custom", {"label": "Custom incident", "description": message or title, "worker_mode": "hung", "alert_title": title or "Custom incident", "service": service}

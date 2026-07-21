@@ -10,21 +10,21 @@ from typing import Any
 
 from .registry import load_capabilities
 from .model_selection import resolve_model
+from .capability_router import CapabilityRouter
 
 
 def _fallback(alert: dict[str, Any], inspection: dict[str, Any]) -> dict[str, Any]:
-    if inspection.get("healthy"):
-        capability = "observe_only"
-        reasoning = "The target is already healthy; verify it without changing state."
-    else:
-        capability = "restart_sandbox_worker"
-        reasoning = "The synthetic worker is unhealthy; restart it and prove a fresh healthy heartbeat."
+    route = CapabilityRouter().decide(alert, inspection, load_capabilities())
+    capability = route.selected
+    if capability == "observe_only": reasoning = "The target is already healthy; verify it without changing state."
+    elif capability == "terminate_sandbox_worker": reasoning = "The alert indicates an unresponsive process; terminate the disposable worker and prove it is no longer alive."
+    else: reasoning = "The target is unhealthy; restart the disposable worker and prove a fresh healthy heartbeat."
     return {
         "capability": capability,
         "target": inspection.get("target", "synthetic.local.worker"),
         "reasoning": reasoning,
         "steps": ["inspect_worker", capability],
-        "verification": {"healthy": True, "heartbeat_age_seconds_less_than": 3},
+        "verification": {"healthy": capability != "terminate_sandbox_worker", "alive": capability != "terminate_sandbox_worker", "heartbeat_age_seconds_less_than": 3},
         "risk": "sandbox_only",
         "source": "offline_fallback",
     }

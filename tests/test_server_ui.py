@@ -11,6 +11,8 @@ class ServerUiTests(unittest.TestCase):
         self.assertIn("Generate constrained AI plan", HTML)
         self.assertIn("Evidence comparison", HTML)
         self.assertIn("Audit trail", HTML)
+        self.assertIn("Try any incident", HTML)
+        self.assertIn("customTitle", HTML)
         self.assertNotIn("Start the demo.", HTML)
 
 

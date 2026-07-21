@@ -57,6 +57,12 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(run["status"], "shadowed")
         self.assertEqual(run["result"]["status"], "SHADOW_ONLY")
 
+    def test_free_form_alert_uses_dynamic_route(self):
+        run = self.call("/api/alerts", "POST", {"title": "Snipping Tool won't close", "message": "The process is unresponsive and must be force closed.", "service": "desktop-app"})
+        self.assertEqual(run["scenario"], "custom")
+        self.assertEqual(run["alert"]["title"], "Snipping Tool won't close")
+        self.assertEqual(run["route_preview"]["selected"], "terminate_sandbox_worker")
+
     def test_approval_flow_exposes_replay_and_chain_verification(self):
         run = self.call("/api/alerts", "POST", {"scenario": "stale_heartbeat"})
         run = self.call(f"/api/runs/{run['run_id']}/plan", "POST")

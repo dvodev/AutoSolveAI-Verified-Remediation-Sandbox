@@ -13,7 +13,7 @@ from typing import Any
 from .planner import generate_plan
 from .policy import evaluate
 from .registry import load_capabilities
-from .scenarios import get_scenario
+from .scenarios import custom_scenario, get_scenario
 from .sandbox import IncidentSandbox
 from .contracts import fingerprint, redact
 from .evidence import collect_target_snapshot, compare_verification, evidence_summary, verify_snapshot
@@ -61,7 +61,13 @@ class RemediationEngine:
             security = authorize_payload(alert)
             if not security.allowed:
                 raise ValueError(security.reason)
-            scenario_name, scenario = get_scenario(alert.pop("scenario", None))
+            requested_scenario = alert.pop("scenario", None)
+            if requested_scenario:
+                scenario_name, scenario = get_scenario(requested_scenario)
+            elif alert.get("title") or alert.get("message"):
+                scenario_name, scenario = custom_scenario(str(alert.get("title") or "Custom incident"), str(alert.get("message") or ""), str(alert.get("service") or "synthetic-app"))
+            else:
+                scenario_name, scenario = get_scenario(None)
             mode = str(alert.pop("mode", "approval") or "approval").lower()
             worker_mode = scenario["worker_mode"]
             current = self.sandbox.start(hung=worker_mode == "hung") if worker_mode != "missing" else (self.sandbox.stop() or self.sandbox.inspect())
@@ -71,7 +77,7 @@ class RemediationEngine:
                 "alert_id": f"demo-{run_id[:8]}",
                 "title": scenario["alert_title"],
                 "severity": "high",
-                "service": "checkout-worker",
+                "service": scenario.get("service", "checkout-worker"),
                 "message": scenario["description"],
                 **alert,
             }

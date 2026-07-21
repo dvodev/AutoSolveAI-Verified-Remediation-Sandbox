@@ -35,21 +35,21 @@ class RouteDecision:
 
 
 class CapabilityRouter:
-    KEYWORDS = {"restart": ("restart", "hung", "stale", "unhealthy", "crash", "heartbeat"), "terminate": ("terminate", "kill", "stop", "stuck"), "observe": ("healthy", "no-op", "normal", "signal")}
+    KEYWORDS = {"restart": ("restart", "hung", "stale", "unhealthy", "crash", "heartbeat"), "terminate": ("terminate", "kill", "stop", "stuck", "won't close", "wont close", "not responding", "unresponsive", "force close"), "observe": ("healthy", "no-op", "normal", "signal")}
 
     def rank(self, alert: Mapping[str, Any], inspection: Mapping[str, Any], registry: Mapping[str, Mapping[str, Any]]) -> tuple[RouteCandidate, ...]:
-        text = " ".join(str(alert.get(key, "")) for key in ("title", "message", "severity", "service")).lower(); healthy = bool(inspection.get("healthy")); candidates: list[RouteCandidate] = []
+        text = " ".join(str(alert.get(key, "")) for key in ("title", "message", "severity", "service")).lower(); healthy = bool(inspection.get("healthy")); termination_signal = any(word in text for word in self.KEYWORDS["terminate"]); candidates: list[RouteCandidate] = []
         for name, spec in registry.items():
             reasons: list[str] = []; score = 0.0; mutates = bool(spec.get("mutates"))
             if name == "observe_only":
                 score += 0.8 if healthy else 0.1; reasons.append("target is healthy" if healthy else "safe observation fallback")
                 if any(word in text for word in self.KEYWORDS["observe"]): score += 0.25; reasons.append("alert language suggests observation")
             elif "restart" in name:
-                score += 0.9 if not healthy else 0.15; reasons.append("target is unhealthy" if not healthy else "restart is unnecessary while healthy")
+                score += 0.15 if termination_signal else (0.9 if not healthy else 0.15); reasons.append("explicit termination language takes precedence" if termination_signal else ("target is unhealthy" if not healthy else "restart is unnecessary while healthy"))
                 if any(word in text for word in self.KEYWORDS["restart"]): score += 0.45; reasons.append("alert matches restart signal")
             elif "terminate" in name:
                 score += 0.35 if not healthy else 0.05; reasons.append("termination is available for a failed worker")
-                if any(word in text for word in self.KEYWORDS["terminate"]): score += 0.45; reasons.append("alert matches termination signal")
+                if termination_signal: score += 0.9; reasons.append("alert matches termination signal")
             else:
                 score += 0.05; reasons.append("registered capability with no specialized signal")
             candidates.append(RouteCandidate(name, score, tuple(reasons), blocked=False if name in registry else True))

@@ -100,6 +100,20 @@ class ExpandedSystemTests(unittest.TestCase):
         self.assertEqual(resolution.selected.target_id, "synthetic.local.worker")
         self.assertIn("service matched alert", resolution.reason)
 
+    def test_free_form_unknown_incident_is_preserved_and_routed_dynamically(self):
+        with tempfile.TemporaryDirectory() as directory:
+            orchestrator = RemediationOrchestrator(RemediationEngine(directory))
+            try:
+                run = orchestrator.ingest({"title": "Snipping Tool won't close", "message": "The process is unresponsive and must be force closed.", "service": "desktop-app"})
+                self.assertEqual(run["scenario"], "custom")
+                self.assertEqual(run["alert"]["title"], "Snipping Tool won't close")
+                self.assertEqual(run["alert"]["service"], "desktop-app")
+                self.assertEqual(run["route_preview"]["selected"], "terminate_sandbox_worker")
+                planned = orchestrator.plan(run["run_id"])
+                self.assertEqual(planned["plan"]["capability"], "terminate_sandbox_worker")
+            finally:
+                orchestrator.close()
+
     def test_workflow_exposes_expanded_controls_and_connectors(self):
         with tempfile.TemporaryDirectory() as directory:
             orchestrator = RemediationOrchestrator(RemediationEngine(directory))
