@@ -9,4 +9,6 @@
 5. The disposable worker is terminated and independently verified.
 6. Before/after evidence and the hash-chained audit trail are shown.
 
+The recording also includes a clearly labeled **Snipping Tool — Sandbox target** window that visibly transitions from `NOT RESPONDING` to `CLOSING…` to `CLOSED / VERIFIED` when the AI-selected remediation executes.
+
 The recording uses synthetic data only. It does not control the real Snipping Tool or any production host.
