@@ -13,4 +13,6 @@ This file is deliberately explicit about provenance. The production AutoSolveAI 
 
 Codex build session: `019f70ae-deef-7e51-a596-81c08bb2650c`.
 
+The current standalone implementation is over 2,000 Python lines with 46 automated tests. The line count reflects typed domain contracts, adapters, orchestration, security gates, evidence processing, simulation, replay, reporting, CLI, API, and tests—not copied production code.
+
 Before submitting, record the exact public repository URL and video URL in `SUBMISSION.md`. Do not claim that legacy production code was built during the challenge.
