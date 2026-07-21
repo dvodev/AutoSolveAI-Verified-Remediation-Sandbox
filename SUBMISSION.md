@@ -35,4 +35,4 @@ The demo works without an API key using a deterministic safe fallback. Set `OPEN
 
 - Public repository: replace with the dedicated repository URL.
 - YouTube video (under three minutes): replace with the published URL.
-- Codex session ID: replace with the exported session ID for the build session.
+- Codex session ID: `019f70ae-deef-7e51-a596-81c08bb2650c` (the session in which the standalone core was built).
