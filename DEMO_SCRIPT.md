@@ -1,15 +1,13 @@
-# Under-three-minute video script
+# Recorded contest demo script
 
-**0:00–0:20 — Problem.** “Monitoring says checkout-worker is unhealthy. A green API response is not proof of recovery.”
+The submitted recording is [`artifacts/autosolve_verified_remediation_demo.webm`](artifacts/autosolve_verified_remediation_demo.webm), approximately 30 seconds at 1440×900.
 
-**0:20–0:45 — Alert and inspection.** Choose **Stale heartbeat** and click **Simulate alert**. Point out the synthetic target, PID, OS facts, logs, stale status, and `healthy: false`.
+**0:00–0:08 — Free-form incident.** Enter “Snipping Tool won't close” and describe an unresponsive process. This is not a pre-saved scenario.
 
-**0:45–1:15 — AI plan.** Click **Generate GPT plan**. Show the structured capability, target, reasoning, verification requirement, and `sandbox_only` risk. Explain that unknown capabilities are rejected.
+**0:08–0:16 — Dynamic reasoning.** Show intake, target inspection, the router recommendation, and GPT-5.6’s structured plan. The selected capability must come from the registry.
 
-**1:15–1:35 — Policy.** Show the capability manifest and approval decision. Click **Approve**. Show the audit event proving approval is a separate state transition. Mention that **Shadow mode** can run the same plan without changing state.
+**0:16–0:21 — Policy gate.** Approve the plan explicitly. Explain that shadow mode is available and no mutation happens before approval.
 
-**1:35–2:15 — Execution.** Click **Execute + verify**. Show the worker PID changes and the new heartbeat.
+**0:21–0:27 — Execution and proof.** Execute the allowlisted termination against the disposable worker. Show `stopped`, `VERIFIED`, before/after evidence, and the audit timeline.
 
-**2:15–2:40 — Proof.** Highlight `VERIFIED`, `healthy: true`, the PID transition, and the hash-chained audit timeline. Click **Replay audit** and **Rollback**.
-
-**2:40–3:00 — Generalization and boundary.** Select **Healthy signal** to show the observe-only no-op, then say: “The system does not mark an incident solved because a command returned zero; it checks the recovered target. This is a clean-room sandbox: synthetic alert, disposable process, no production systems or secrets.”
+**0:27–0:30 — Boundary.** State that the demo is clean-room and synthetic: it never touches the real Snipping Tool, production systems, or secrets.
